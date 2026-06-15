@@ -1,0 +1,25 @@
+{
+  "name": "stillpoint",
+  "version": "0.1.0",
+  "description": "A quiet, ambient meditation timer with custom segments and synthesized chimes.",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vite": "^6.0.0",
+    "vite-plugin-pwa": "^0.21.1"
+  },
+  "dependencies": {
+    "@fontsource/dm-sans": "^5.1.0",
+    "@fontsource/spectral": "^5.1.0"
+  }
+}

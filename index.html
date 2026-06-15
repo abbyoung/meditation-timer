@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <title>Stillpoint — Meditation Timer</title>
+  <meta name="description" content="A quiet, ambient meditation timer with custom segments and chimes." />
+  <meta name="theme-color" content="#0c0f1a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Stillpoint" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+  <link rel="icon" href="./icons/icon-192.png" />
+</head>
+<body class="palette-night">
+  <div class="ambient"></div>
+  <div class="grain"></div>
+
+  <!-- ============ BUILDER / HOME ============ -->
+  <main class="shell" data-screen-label="Home">
+    <header class="welcome">
+      <span class="eyebrow">Stillpoint</span>
+      <h1 id="greeting">Good evening</h1>
+      <span class="clock" id="clock"></span>
+    </header>
+
+    <section class="card" id="card" aria-label="Session builder">
+      <div class="card-head">
+        <input id="sessionName" class="session-name" type="text" placeholder="Name this session" maxlength="40" autocomplete="off" autocapitalize="words" autocorrect="off" spellcheck="false" name="stillpoint-session-name" />
+        <button class="save-toggle" id="saveBtn" type="button" aria-label="Bookmark this session for a future visit" title="Bookmark for a future visit">
+          <svg class="ico-bookmark" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M6 4h12v16l-6-4-6 4z"></path></svg>
+          <span class="save-label">Bookmark</span>
+        </button>
+      </div>
+
+      <div class="total-row">
+        <span class="total-label">Total time</span>
+        <div class="total" id="totalTime">0<span class="unit">min</span></div>
+      </div>
+
+      <div class="seg-head">
+        <span>Segments</span>
+        <div class="seg-head-actions">
+          <button class="clear-btn" id="clearBtn" type="button" aria-label="Clear the timer and start over">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"></path><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path><path d="M6 7l1 12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-12"></path></svg>
+            <span class="clear-label">Clear</span>
+          </button>
+          <button class="mode-toggle" id="modeToggle" type="button">Edit</button>
+        </div>
+      </div>
+      <div class="segments" id="segments"></div>
+
+      <button class="add-seg" id="addSegment" type="button">+ Add segment</button>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="beginBtn" type="button">Begin session</button>
+      </div>
+    </section>
+
+    <section class="saved" aria-label="Bookmarked sessions">
+      <div class="saved-head">
+        <svg class="ico-bookmark" viewBox="0 0 24 24" width="13" height="13" fill="currentColor" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M6 4h12v16l-6-4-6 4z"></path></svg>
+        <span>Bookmarked</span>
+      </div>
+      <div class="saved-list" id="savedList"></div>
+    </section>
+
+    <p class="footnote" id="swState">a quiet place to sit</p>
+  </main>
+
+  <!-- ============ RUNNING VIEW ============ -->
+  <section class="runner" id="runner" aria-label="Session in progress">
+    <div class="dimmer" id="dimmer"></div>
+
+    <div class="runner-inner run-active">
+      <div class="run-name" id="runName">Session</div>
+      <div class="run-seg-label" id="runSegLabel">Segment 1 of 1</div>
+
+      <div class="run-time-wrap">
+        <div class="halo"></div>
+        <div class="run-time" id="runTime">0:00</div>
+      </div>
+
+      <div class="run-total" id="runTotal"></div>
+      <div class="run-dots" id="runDots"></div>
+    </div>
+
+    <div class="runner-inner run-complete">
+      <div class="glyph">&#10003;</div>
+      <h2>Complete</h2>
+      <p>Take a moment before you rise.</p>
+    </div>
+
+    <div class="run-controls run-active">
+      <button class="run-btn pause" id="pauseBtn" type="button">Pause</button>
+      <button class="run-btn" id="endBtn" type="button">End</button>
+    </div>
+    <div class="run-controls run-complete">
+      <button class="run-btn" id="endBtn2" type="button">Return home</button>
+    </div>
+
+    <div class="run-hint">screen stays awake &middot; tap to brighten</div>
+  </section>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
