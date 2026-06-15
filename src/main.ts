@@ -12,19 +12,26 @@ import '@fontsource/dm-sans/600.css';
 import './styles.css';
 
 import { registerSW } from 'virtual:pwa-register';
-import { AudioEngine } from './audio/AudioEngine.js';
-import { loadSoundParams } from './persistence/Store.js';
-import { startTheme } from './theme/Theming.js';
-import { Builder } from './ui/Builder.js';
+import { AudioEngine }      from './audio/AudioEngine.js';
+import { loadSoundParams }  from './persistence/Store.js';
+import { startTheme }       from './theme/Theming.js';
+import { Builder }          from './ui/Builder.js';
+import { Runner }           from './ui/Runner.js';
 
 // ── Audio engine ─────────────────────────────────────────────────────────────
 const engine = new AudioEngine();
 engine.setParams(loadSoundParams());
 
-// ── Builder UI ───────────────────────────────────────────────────────────────
-// Phase 5 will pass a real Runner here; for now the callback is a no-op stub.
-const builder = new Builder(engine, (_session) => {
-  // TODO Phase 5: runner.start(session)
+// ── Runner ───────────────────────────────────────────────────────────────────
+// Constructed before Builder so it can be passed as the onBegin target.
+const runner = new Runner(engine, () => {
+  // Called when End or "Return home" is tapped; reload from storage.
+  builder.onReturnHome();
+});
+
+// ── Builder ───────────────────────────────────────────────────────────────────
+const builder = new Builder(engine, (session) => {
+  runner.start(session);
 });
 
 // ── Theme ─────────────────────────────────────────────────────────────────────
@@ -32,6 +39,7 @@ startTheme();
 
 // ── Boot ─────────────────────────────────────────────────────────────────────
 function boot(): void {
+  runner.mount();
   builder.mount();
 }
 
@@ -42,7 +50,6 @@ if (document.readyState === 'loading') {
 }
 
 // ── PWA service worker ────────────────────────────────────────────────────────
-// registerSW is provided by vite-plugin-pwa; it handles skipWaiting + clients.claim.
 registerSW({
   immediate: true,
   onRegistered() {
