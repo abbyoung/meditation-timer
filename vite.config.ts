@@ -20,10 +20,16 @@ export default defineConfig({
       registerType: 'autoUpdate',
       // Precache the app shell + hashed font assets for true offline (Spec §10/§11).
       workbox: {
-        globPatterns: ['**/*.{js,css,html,woff,woff2,png,svg,ico}'],
+        // Precache every asset the app shell needs, including the webmanifest.
+        globPatterns: ['**/*.{js,css,html,woff,woff2,png,svg,ico,webmanifest}'],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
+        // Serve index.html for any navigation request while offline (Spec §10).
+        // Stillpoint is a single-page app with no routing, so every navigation
+        // that isn't in the precache should fall back to the app shell.
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/\/icons\//, /\.(?:png|ico|svg|woff2?)$/],
       },
       includeAssets: ['icons/*.png'],
       manifest: {

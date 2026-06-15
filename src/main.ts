@@ -53,6 +53,19 @@ function boot(): void {
     engine.resume(); // ensure AudioContext is ready for Hear-it previews
     settings.toggle();
   });
+
+  // Register the SW after mount() so builder.setSWStatus() has a live DOM ref.
+  // onRegistered fires asynchronously (SW activation can take seconds on first
+  // install), but by then we are definitely mounted.
+  registerSW({
+    immediate: true,
+    onRegistered() {
+      builder.setSWStatus('works offline · <span class="ok">ready</span>');
+    },
+    onRegisterError() {
+      builder.setSWStatus('install to use offline');
+    },
+  });
 }
 
 if (document.readyState === 'loading') {
@@ -60,14 +73,3 @@ if (document.readyState === 'loading') {
 } else {
   boot();
 }
-
-// ── PWA service worker ────────────────────────────────────────────────────────
-registerSW({
-  immediate: true,
-  onRegistered() {
-    builder.setSWStatus('works offline · <span class="ok">ready</span>');
-  },
-  onRegisterError() {
-    builder.setSWStatus('install to use offline');
-  },
-});
