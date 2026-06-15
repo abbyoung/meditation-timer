@@ -13,7 +13,8 @@ Production module boundaries (prefer these over a single IIFE): `AudioEngine`, `
 ### Build status by phase
 - **Phase 1 — Scaffold (done).** Vite 6 + TS, `vite-plugin-pwa` (auto-versioned SW + font precache), self-hosted Spectral/DM Sans via `@fontsource`, `src/types.ts` (Build-Spec §1 schemas), ported `src/styles.css` + OKLCH palettes, `index.html` app shell. `npm run build` + dev server verified. Requires **Node ≥20** (pinned in `.node-version` / `engines`).
 - **Phase 2 — AudioEngine (done).** `src/audio/AudioEngine.ts` — DOM-free class; full chime (`strikeVoice`) + bell (`strikeRin`) voices ported verbatim; all 11 tunable params via `SoundParams`/`setParams()`; `play(kind)` + `preview(kind)` API; `resume()` for lazy AudioContext creation after user gesture. All numeric constants preserved exactly from Build-Spec §4.
-- Phases 3–8 (Persistence, Builder UI, Timer/Runner, Settings, PWA hardening, acceptance) — pending.
+- **Phase 3 — Persistence (done).** `src/persistence/Store.ts` — thin localStorage adapter; `loadLast`/`saveLast` (working session), `loadSaved`/`upsertSaved`/`deleteSaved` (bookmarks, case-insensitive upsert, newest-first), `loadSoundParams`/`saveSoundParams` (replaces EDITMODE mechanism); all reads/writes try/catch wrapped.
+- Phases 4–8 (Builder UI, Timer/Runner, Settings, PWA hardening, acceptance) — pending.
 
 ### Working practice — keep this file current (every agent must follow this)
 
