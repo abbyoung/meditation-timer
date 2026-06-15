@@ -1,8 +1,4 @@
-// Stillpoint entry point.
-//
-// Self-hosted fonts (Spec §8 "SHOULD self-host/precache for offline"). Importing
-// the @fontsource CSS lets Vite fingerprint the woff2 files so vite-plugin-pwa
-// precaches them — no cross-origin Google Fonts fetch at runtime.
+// Self-hosted fonts — Vite fingerprints + precaches the woff2 files (Spec §8/§10).
 import '@fontsource/spectral/200.css';
 import '@fontsource/spectral/300.css';
 import '@fontsource/spectral/400.css';
@@ -16,18 +12,43 @@ import '@fontsource/dm-sans/600.css';
 import './styles.css';
 
 import { registerSW } from 'virtual:pwa-register';
+import { AudioEngine } from './audio/AudioEngine.js';
+import { loadSoundParams } from './persistence/Store.js';
+import { startTheme } from './theme/Theming.js';
+import { Builder } from './ui/Builder.js';
 
-// Auto-update the service worker; the new SW claims clients on next load.
-registerSW({ immediate: true });
+// ── Audio engine ─────────────────────────────────────────────────────────────
+const engine = new AudioEngine();
+engine.setParams(loadSoundParams());
 
-// Phase 1 scaffold marker. Subsequent phases mount the Builder/Runner UI,
-// AudioEngine, Timer, Persistence and Theming modules here.
-const boot = () => {
-  document.documentElement.dataset.stillpoint = 'booted';
-};
+// ── Builder UI ───────────────────────────────────────────────────────────────
+// Phase 5 will pass a real Runner here; for now the callback is a no-op stub.
+const builder = new Builder(engine, (_session) => {
+  // TODO Phase 5: runner.start(session)
+});
+
+// ── Theme ─────────────────────────────────────────────────────────────────────
+startTheme();
+
+// ── Boot ─────────────────────────────────────────────────────────────────────
+function boot(): void {
+  builder.mount();
+}
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', boot, { once: true });
 } else {
   boot();
 }
+
+// ── PWA service worker ────────────────────────────────────────────────────────
+// registerSW is provided by vite-plugin-pwa; it handles skipWaiting + clients.claim.
+registerSW({
+  immediate: true,
+  onRegistered() {
+    builder.setSWStatus('works offline · <span class="ok">ready</span>');
+  },
+  onRegisterError() {
+    builder.setSWStatus('install to use offline');
+  },
+});
