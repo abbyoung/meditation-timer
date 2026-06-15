@@ -17,10 +17,14 @@ import { loadSoundParams }  from './persistence/Store.js';
 import { startTheme }       from './theme/Theming.js';
 import { Builder }          from './ui/Builder.js';
 import { Runner }           from './ui/Runner.js';
+import { Settings }         from './ui/Settings.js';
 
 // ── Audio engine ─────────────────────────────────────────────────────────────
-const engine = new AudioEngine();
+const engine   = new AudioEngine();
 engine.setParams(loadSoundParams());
+
+// ── Settings panel ────────────────────────────────────────────────────────────
+const settings = new Settings(engine);
 
 // ── Runner ───────────────────────────────────────────────────────────────────
 // Constructed before Builder so it can be passed as the onBegin target.
@@ -39,8 +43,16 @@ startTheme();
 
 // ── Boot ─────────────────────────────────────────────────────────────────────
 function boot(): void {
+  settings.mount();
   runner.mount();
   builder.mount();
+
+  // Wire the settings trigger button.
+  const settingsBtn = document.getElementById('settingsBtn');
+  settingsBtn?.addEventListener('click', () => {
+    engine.resume(); // ensure AudioContext is ready for Hear-it previews
+    settings.toggle();
+  });
 }
 
 if (document.readyState === 'loading') {
