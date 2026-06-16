@@ -1,0 +1,85 @@
+name: Agent fix
+
+on:
+  issues:
+    types: [labeled]
+
+# Only run when the "agent-fix" label is applied
+# Remove the label after the agent opens a PR to prevent re-runs
+jobs:
+  fix:
+    if: github.event.label.name == 'agent-fix'
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write       # create branch and commit
+      pull-requests: write  # open PR
+      issues: write         # post validation comments
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - run: npm ci
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            You are fixing a bug in the Stillpoint meditation timer app.
+
+            ISSUE #${{ github.event.issue.number }}: ${{ github.event.issue.title }}
+
+            ISSUE BODY:
+            ${{ github.event.issue.body }}
+
+            ## Your task
+
+            1. VALIDATE the issue first. Check whether:
+               - The area checkbox in the issue points to a real module
+               - The steps to reproduce are specific enough to locate the problem
+               - If the localStorage snippet is present, it's parseable JSON
+               If the issue is too vague to act on, post a comment explaining what
+               is missing (e.g. "no reproduction steps", "no console output for an
+               audio bug"), then stop. Do not open a PR.
+
+            2. FIND the bug. Use the area checkbox and console output to locate the
+               relevant source files. Key module map:
+               - Builder (session setup) → src/ui/Builder.ts
+               - Runner (active timer)   → src/ui/Runner.ts
+               - Audio / sound cues      → src/audio/AudioEngine.ts
+               - Sound settings panel   → src/ui/Settings.ts
+               - Bookmarks              → src/persistence/Store.ts
+               - Theming / appearance   → src/theme/Theming.ts, src/styles.css
+               - PWA / offline          → vite.config.ts, src/main.ts
+
+            3. FIX the bug. Make the minimal change required. Do not refactor,
+               add features, or clean up unrelated code.
+
+               HARD CONSTRAINTS — never change these:
+               - Audio constants in AudioEngine.ts (frequencies, gains, timing)
+               - The chime must use harmonic partials (non-deterministic / Fisher-Yates)
+               - The bell must strike root → octave → fifth
+               - The 700 ms frozen handoff between segments
+               - The drift-free timer (elapsed = (Date.now()-startAt)/1000)
+               - All do-not-regress behaviors in CLAUDE.md
+
+            4. VERIFY the fix compiles:
+               Run `npm run typecheck`. If it fails, fix the errors before
+               continuing. Do not open a PR if typecheck fails.
+
+            5. WRITE OR UPDATE A TEST if the behavior is exercised by the test
+               suite. Check src/__tests__/ for relevant existing tests first.
+
+            6. OPEN A PR:
+               - Branch name: fix/issue-${{ github.event.issue.number }}
+               - PR title: short description of what was fixed (under 70 chars)
+               - PR body: include "Closes #${{ github.event.issue.number }}"
+               - Link the specific file and line changed
+               - Note which do-not-regress behaviors you verified were not affected
+
+          github_token: ${{ secrets.GITHUB_TOKEN }}
