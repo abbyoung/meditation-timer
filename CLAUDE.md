@@ -2,9 +2,9 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Status: production build-out in progress
+## Status: production build complete — all 8 phases shipped
 
-The **production app** is being built at the repo root as a **Vite 6 + vanilla TypeScript** project (no UI framework), following the module boundaries in Design-Doc §13 / Build-Spec §11. The architecture decision and rationale are recorded in `docs/ADR/0001-frontend-architecture.md`.
+The **production app** lives at the repo root as a **Vite 6 + vanilla TypeScript** project (no UI framework), following the module boundaries in Design-Doc §13 / Build-Spec §11. The architecture decision and rationale are recorded in `docs/ADR/0001-frontend-architecture.md`.
 
 The original vanilla prototype now lives in **`reference/`** (`app.js`, `tweaks.js`, `sw.js`, `index.html`, `styles.css`, `manifest.json`). **It is the behavioral reference — port behavior, not necessarily code** — and is no longer served or built. Above all it pins the audio engine and the do-not-regress behaviors. Do not extend the `reference/` files; build the production equivalents under `src/`.
 
@@ -18,7 +18,7 @@ Production module boundaries (prefer these over a single IIFE): `AudioEngine`, `
 - **Phase 5 — Timer + Runner (done).** `src/timer/Timer.ts` — pure, DOM-free wall-clock loop; drift-free (`elapsed = (Date.now()-startAt)/1000`, never accumulates deltas); precomputes `bounds[]` for total-remaining; 700 ms frozen handoff between segments; pause shifts `startAt` forward; `TimerCallbacks` interface (onSegmentStart, onTick, onSegmentEnd, onComplete). `src/ui/Runner.ts` — Runner UI class; subscribes to Timer; Screen Wake Lock (re-acquired on visibilitychange); ambient dim at 6 s + brighten at 4 s; progress dots; Pause/Resume; End/"Return home"; wires into Builder via `onEnd` → `builder.onReturnHome()`. `main.ts` updated: both modules mounted, Begin callback fully wired.
 - **Phase 6 — Settings panel (done).** `src/ui/Settings.ts` — in-app sound settings panel replacing the EDITMODE/host-rewrite mechanism; sliders for all 11 params (Pitch, Warmth, Sustain, Shimmer/Warble, Notes, Spread, Volume) with live display values; segmented control for bellRings (1/2/3); "Hear it" preview buttons per group; reads `loadSoundParams()` on mount, calls `engine.setParams()` + `saveSoundParams()` on every change; Escape to close. Trigger button added to welcome header (`#settingsBtn`). Panel CSS added to `styles.css`. Wired in `main.ts`: `engine.resume()` called on open so AudioContext is ready for previews.
 - **Phase 7 — PWA hardening (done).** Audit confirmed: skipWaiting ✓, clientsClaim ✓, cleanupOutdatedCaches ✓, 84 precache entries (fonts, app shell, icons, webmanifest), all icons present. Two fixes applied: (1) added `navigateFallback: 'index.html'` + `navigateFallbackDenylist` so offline navigations serve the app shell (`createHandlerBoundToURL` confirmed in built SW); (2) moved `registerSW` inside `boot()` so `onRegistered`/`onRegisterError` callbacks always fire after `builder.mount()` — SW footnote status guaranteed to have a live DOM ref. `globPatterns` extended to include `.webmanifest`. Preview server confirmed all shell assets serve 200.
-- Phase 8 (acceptance pass) — pending.
+- **Phase 8 — Acceptance pass (done).** Full §12 checklist + §13 do-not-regress audit. All 10 checklist items verified against source: audio constants intact, harmonic chime, inharmonic bell (root→oct→fifth order), 700 ms handoff, drift-free timer, wake lock + re-acquire, A11Y-1..5, reduced-motion gates, autofill neutralization, read-only total, PWA precache (84 entries). Build: 0 TypeScript errors. No regressions found.
 
 ### Working practice — keep this file current (every agent must follow this)
 
