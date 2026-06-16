@@ -17,9 +17,9 @@ jobs:
       issues: write         # post validation comments
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version-file: .node-version
           cache: npm
@@ -29,6 +29,8 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model: "claude-sonnet-4-6"
+          allowed_tools: "Bash,Read,Edit,Write"
           prompt: |
             You are fixing a bug in the Stillpoint meditation timer app.
 
