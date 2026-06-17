@@ -121,6 +121,10 @@ export class Builder {
 
     // Edit / Done toggle.
     el.modeToggle.addEventListener('click', () => {
+      if (this.mode === 'edit' && !this.session.name.trim()) {
+        this.session.name = 'Session';
+        saveLast(this.session);
+      }
       this.mode = this.mode === 'edit' ? 'view' : 'edit';
       this._render();
     });
@@ -175,7 +179,7 @@ export class Builder {
 
     // Begin session.
     el.beginBtn.addEventListener('click', () => {
-      this.session.name = el.nameInput.value;
+      this.session.name = el.nameInput.value.trim() || 'Session';
       saveLast(this.session);
       if (totalSeconds(this.session) <= 0) return;
       this.engine.resume(); // ensure AudioContext is created inside user gesture
