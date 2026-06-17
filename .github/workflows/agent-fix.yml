@@ -30,6 +30,7 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_args: "--model claude-sonnet-4-6 --dangerously-skip-permissions"
+          show_full_output: true
           prompt: |
             You are fixing a bug in the Stillpoint meditation timer app.
 
