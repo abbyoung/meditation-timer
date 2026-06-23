@@ -113,7 +113,11 @@ export class Runner {
     body.classList.add('running');
     body.classList.remove('complete', 'dimmed', 'awake');
 
-    this.el.runName.textContent = session.name || 'Session';
+    // Naming is optional: hide the title entirely for an unnamed session
+    // rather than showing a generic placeholder.
+    const name = session.name.trim();
+    this.el.runName.textContent = name;
+    this.el.runName.hidden = !name;
     this._buildDots(session.segments.length);
 
     void this._requestWake();

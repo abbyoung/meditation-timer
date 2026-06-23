@@ -119,12 +119,10 @@ export class Builder {
       this._updateSaveState();
     });
 
-    // Edit / Done toggle.
+    // Edit / Done toggle. Naming is optional — never inject a default here;
+    // an unnamed session stays unnamed (see Bookmark for the one place a name
+    // is actually required).
     el.modeToggle.addEventListener('click', () => {
-      if (this.mode === 'edit' && !this.session.name.trim()) {
-        this.session.name = 'Session';
-        saveLast(this.session);
-      }
       this.mode = this.mode === 'edit' ? 'view' : 'edit';
       this._render();
     });
@@ -166,20 +164,28 @@ export class Builder {
       }
     });
 
-    // Bookmark toggle — upsert into saved list.
+    // Bookmark toggle — upsert into saved list. This is the one surface that
+    // genuinely needs a name (the saved list shows it; upsertSaved keys on it),
+    // so nudge the user to name an unnamed session rather than inventing one.
     el.saveBtn.addEventListener('click', () => {
-      this.session.name = el.nameInput.value;
+      const name = el.nameInput.value.trim();
+      if (!name) {
+        el.nameInput.focus();
+        this._toast('Name this session to bookmark it');
+        return;
+      }
+      this.session.name = name;
+      el.nameInput.value = name;
       saveLast(this.session);
       upsertSaved(this.session);
       this._renderSaved();
       this._updateSaveState();
-      const name = this.session.name.trim() || 'Untitled';
       this._toast(`Saved “${name}”`);
     });
 
-    // Begin session.
+    // Begin session. A one-off needs no name — leave it empty if empty.
     el.beginBtn.addEventListener('click', () => {
-      this.session.name = el.nameInput.value.trim() || 'Session';
+      this.session.name = el.nameInput.value.trim();
       saveLast(this.session);
       if (totalSeconds(this.session) <= 0) return;
       this.engine.resume(); // ensure AudioContext is created inside user gesture
