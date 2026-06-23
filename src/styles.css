@@ -186,7 +186,7 @@ body {
 .btn:focus-visible,
 .chip:focus-visible,
 .saved-item:focus-visible,
-.seg-remove:focus-visible,
+.seg-action:focus-visible,
 .del:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
@@ -356,8 +356,11 @@ body {
 .time-input .lab { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-faint); }
 .time-input .colon { font-size: 20px; color: var(--ink-faint); align-self: center; padding-top: 6px; }
 
-.seg-remove {
+.seg-actions {
   position: absolute; top: 10px; right: 10px;
+  display: flex; gap: 6px;
+}
+.seg-action {
   width: 24px; height: 24px;
   border-radius: 50%;
   border: 1px solid var(--line);
@@ -365,10 +368,11 @@ body {
   color: var(--ink-soft);
   cursor: pointer;
   display: grid; place-items: center;
-  font-size: 15px; line-height: 1;
+  line-height: 1;
   transition: all 0.2s ease;
 }
-.seg-remove:hover { color: var(--ink); border-color: var(--ink-soft); background: oklch(0.85 0.02 255 / 0.08); }
+.seg-remove { font-size: 15px; }
+.seg-action:hover { color: var(--ink); border-color: var(--ink-soft); background: oklch(0.85 0.02 255 / 0.08); }
 
 /* sound row */
 .sound-row {
