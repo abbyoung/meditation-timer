@@ -38,7 +38,7 @@ There are two top-level views, toggled by a `running` class on `<body>`:
 - **Footnote** — PWA/offline status line.
 
 ### 2.2 Running view
-- Session name, **Segment N of M** label.
+- Session name, segment label: the segment's **name** when set (with **Segment N of M** as a secondary line), else **Segment N of M** alone.
 - Large **countdown** for the current segment + **total remaining**.
 - **Progress dots** (one per segment: done / active / upcoming).
 - **Pause/Resume** and **End** controls.

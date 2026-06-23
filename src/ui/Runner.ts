@@ -27,6 +27,9 @@ export class Runner {
 
   private active = false;
 
+  // Retained so segment callbacks can read per-segment metadata (e.g. name).
+  private session: Session | null = null;
+
   // Wake lock (Build-Spec §7)
   private wakeLock: WakeLockSentinel | null = null;
 
@@ -44,6 +47,7 @@ export class Runner {
     runner:      HTMLElement;
     runName:     HTMLElement;
     runSegLabel: HTMLElement;
+    runSegPos:   HTMLElement;
     runTime:     HTMLElement;
     runTotal:    HTMLElement;
     runDots:     HTMLElement;
@@ -85,6 +89,7 @@ export class Runner {
       runner:      qs('#runner'),
       runName:     qs('#runName'),
       runSegLabel: qs('#runSegLabel'),
+      runSegPos:   qs('#runSegPos'),
       runTime:     qs('#runTime'),
       runTotal:    qs('#runTotal'),
       runDots:     qs('#runDots'),
@@ -107,6 +112,7 @@ export class Runner {
 
   start(session: Session): void {
     this.active = true;
+    this.session = session;
 
     // Switch to running view.
     const { body } = this.el;
@@ -128,7 +134,19 @@ export class Runner {
   // ── Timer callbacks ───────────────────────────────────────────────────────────
 
   private _onSegmentStart(index: number, segCount: number): void {
-    this.el.runSegLabel.textContent = `Segment ${index + 1} of ${segCount}`;
+    const position = `Segment ${index + 1} of ${segCount}`;
+    const name = (this.session?.segments[index]?.name ?? '').trim();
+    if (name) {
+      // Named: name is the primary label, position drops to a secondary line.
+      this.el.runSegLabel.textContent = name;
+      this.el.runSegPos.textContent   = position;
+      this.el.runSegPos.hidden        = false;
+    } else {
+      // Unnamed: position is the label; no secondary line.
+      this.el.runSegLabel.textContent = position;
+      this.el.runSegPos.textContent   = '';
+      this.el.runSegPos.hidden        = true;
+    }
     this._updateDots(index);
   }
 

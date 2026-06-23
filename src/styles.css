@@ -297,6 +297,13 @@ body {
 /* view (read-only / saved) segment */
 .segment.view { padding: 15px 16px; }
 .segment.view .seg-top { gap: 14px; }
+.seg-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.seg-name-text {
+  font-family: var(--sans); font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 .seg-time-text {
   font-family: var(--serif); font-weight: 300;
   font-size: 26px; line-height: 1;
@@ -322,6 +329,29 @@ body {
 }
 .segment .seg-top {
   display: flex; align-items: center; gap: 12px;
+}
+/* optional per-segment name (edit mode) */
+.seg-name {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 14px;
+  letter-spacing: 0.01em;
+  padding: 2px 2px 7px;
+  transition: border-color 0.2s ease;
+}
+.seg-name::placeholder { color: var(--ink-faint); }
+.seg-name:focus { outline: none; border-bottom-color: var(--accent); }
+.seg-name:-webkit-autofill,
+.seg-name:-webkit-autofill:hover,
+.seg-name:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--ink);
+  -webkit-box-shadow: 0 0 0 1000px transparent inset;
+  transition: background-color 9999s ease-in-out 0s;
+  caret-color: var(--ink);
 }
 .seg-index {
   width: 26px; height: 26px; flex: 0 0 auto;
@@ -518,9 +548,15 @@ body.dimmed .dimmer { opacity: 0.62; }
   font-size: clamp(20px, 5vw, 26px);
   color: var(--ink-soft);
 }
+.run-seg { display: flex; flex-direction: column; align-items: center; gap: 5px; }
 .run-seg-label {
   font-size: 12px; letter-spacing: 0.28em; text-transform: uppercase;
   color: var(--ink-faint);
+}
+/* secondary "segment N of M" line shown only when the segment is named */
+.run-seg-pos {
+  font-size: 10px; letter-spacing: 0.18em;
+  color: var(--ink-faint); opacity: 0.7;
 }
 
 /* breathing halo behind the countdown */

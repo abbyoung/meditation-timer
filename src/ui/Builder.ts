@@ -252,16 +252,27 @@ export class Builder {
     badge.className = 'seg-index';
     badge.textContent = String(idx + 1);
 
+    // Name (when set) stacked above the time; falls back to time-only.
+    const main = document.createElement('div');
+    main.className = 'seg-main';
+    const name = (seg.name ?? '').trim();
+    if (name) {
+      const nm = document.createElement('div');
+      nm.className = 'seg-name-text';
+      nm.textContent = name; // textContent escapes — no innerHTML here
+      main.appendChild(nm);
+    }
     const time = document.createElement('div');
     time.className = 'seg-time-text';
     time.textContent = fmtClock(segSeconds(seg));
+    main.appendChild(time);
 
     const cues = document.createElement('div');
     cues.className = 'seg-cues';
     cues.appendChild(this._cueView('Start', seg.start));
     cues.appendChild(this._cueView('End',   seg.end));
 
-    top.append(badge, time, cues);
+    top.append(badge, main, cues);
     wrap.appendChild(top);
     return wrap;
   }
@@ -285,6 +296,26 @@ export class Builder {
   private _renderSegmentEdit(seg: Segment, idx: number): HTMLElement {
     const wrap = document.createElement('div');
     wrap.className = 'segment';
+
+    // Name row (optional). Mirrors the session-name field: persist on input
+    // with NO re-render so focus survives typing/Tab (A11Y-3); autocomplete and
+    // autofill are neutralized to match #sessionName.
+    const nameInput = document.createElement('input');
+    nameInput.className = 'seg-name';
+    nameInput.type = 'text';
+    nameInput.value = seg.name ?? '';
+    nameInput.placeholder = 'Name this segment';
+    nameInput.setAttribute('aria-label', `Segment ${idx + 1} name`);
+    nameInput.maxLength = 30;
+    nameInput.autocomplete = 'off';
+    nameInput.setAttribute('autocapitalize', 'words');
+    nameInput.setAttribute('autocorrect', 'off');
+    nameInput.spellcheck = false;
+    nameInput.addEventListener('input', () => {
+      seg.name = nameInput.value;
+      saveLast(this.session);
+    });
+    wrap.appendChild(nameInput);
 
     // Top row: index badge + time inputs.
     const top = document.createElement('div');
