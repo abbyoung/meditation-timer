@@ -94,6 +94,7 @@ From Build-Spec §13 / Design-Doc §10 (these came from real bugs):
 - Session-name input disables autocomplete and neutralizes `:-webkit-autofill` styling.
 - Total-time display is **read-only** and must not look like an input.
 - **Bookmark ≠ Edit**: Bookmark upserts into `stillpoint.saved` (case-insensitive name); Edit just toggles edit mode (changes persist live to `stillpoint.last`).
+- **Naming is optional.** A session name is only required to **Bookmark** (the saved list shows it and `upsertSaved` keys on it). Done and Begin never inject a default — an unnamed session stays unnamed; bookmarking an unnamed session nudges the user to name it (focuses the field + toast) rather than inventing a generic label. The Runner hides its title line when the session is unnamed.
 - All `localStorage` access is wrapped in try/catch (private-mode/quota failures are non-fatal).
 - All ambient motion is gated behind `prefers-reduced-motion: reduce`.
 

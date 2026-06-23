@@ -22,6 +22,7 @@ import { fmtClock, fmtTotal, escapeHtml } from './format.js';
 
 const BELL_SVG = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>`;
 const NO_SVG   = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/></svg>`;
+const COPY_SVG = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
 
 // ── DOM helpers ───────────────────────────────────────────────────────────────
 
@@ -119,12 +120,10 @@ export class Builder {
       this._updateSaveState();
     });
 
-    // Edit / Done toggle.
+    // Edit / Done toggle. Naming is optional — never inject a default here;
+    // an unnamed session stays unnamed (see Bookmark for the one place a name
+    // is actually required).
     el.modeToggle.addEventListener('click', () => {
-      if (this.mode === 'edit' && !this.session.name.trim()) {
-        this.session.name = 'Session';
-        saveLast(this.session);
-      }
       this.mode = this.mode === 'edit' ? 'view' : 'edit';
       this._render();
     });
@@ -166,20 +165,28 @@ export class Builder {
       }
     });
 
-    // Bookmark toggle — upsert into saved list.
+    // Bookmark toggle — upsert into saved list. This is the one surface that
+    // genuinely needs a name (the saved list shows it; upsertSaved keys on it),
+    // so nudge the user to name an unnamed session rather than inventing one.
     el.saveBtn.addEventListener('click', () => {
-      this.session.name = el.nameInput.value;
+      const name = el.nameInput.value.trim();
+      if (!name) {
+        el.nameInput.focus();
+        this._toast('Name this session to bookmark it');
+        return;
+      }
+      this.session.name = name;
+      el.nameInput.value = name;
       saveLast(this.session);
       upsertSaved(this.session);
       this._renderSaved();
       this._updateSaveState();
-      const name = this.session.name.trim() || 'Untitled';
       this._toast(`Saved “${name}”`);
     });
 
-    // Begin session.
+    // Begin session. A one-off needs no name — leave it empty if empty.
     el.beginBtn.addEventListener('click', () => {
-      this.session.name = el.nameInput.value.trim() || 'Session';
+      this.session.name = el.nameInput.value.trim();
       saveLast(this.session);
       if (totalSeconds(this.session) <= 0) return;
       this.engine.resume(); // ensure AudioContext is created inside user gesture
@@ -361,10 +368,27 @@ export class Builder {
     );
     wrap.appendChild(sounds);
 
-    // Remove button (only when >1 segment).
+    // Corner actions: duplicate (always) + remove (only when >1 segment).
+    const actions = document.createElement('div');
+    actions.className = 'seg-actions';
+
+    const dup = document.createElement('button');
+    dup.className = 'seg-action seg-dup';
+    dup.type = 'button';
+    dup.setAttribute('aria-label', 'Duplicate segment');
+    dup.innerHTML = COPY_SVG;
+    dup.addEventListener('click', () => {
+      // Segment is all primitives, so a flat spread is a safe full copy.
+      this.session.segments.splice(idx + 1, 0, { ...seg });
+      saveLast(this.session);
+      this._render();
+    });
+    actions.appendChild(dup);
+
     if (this.session.segments.length > 1) {
       const rm = document.createElement('button');
-      rm.className = 'seg-remove';
+      rm.className = 'seg-action seg-remove';
+      rm.type = 'button';
       rm.setAttribute('aria-label', 'Remove segment');
       rm.textContent = '×';
       rm.addEventListener('click', () => {
@@ -372,8 +396,10 @@ export class Builder {
         saveLast(this.session);
         this._render();
       });
-      wrap.appendChild(rm);
+      actions.appendChild(rm);
     }
+
+    wrap.appendChild(actions);
 
     return wrap;
   }
