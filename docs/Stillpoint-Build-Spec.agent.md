@@ -8,7 +8,7 @@ Client-only, offline-capable, single-user meditation timer. Two screens: Builder
 ## 1. Data schemas
 ```ts
 type SoundKind = 'none' | 'chime' | 'bell';        // labels: None | Chime | Bells
-interface Segment { min: number; sec: number; start: SoundKind; end: SoundKind; } // min>=0, sec 0..59
+interface Segment { min: number; sec: number; start: SoundKind; end: SoundKind; name?: string; } // min>=0, sec 0..59; name optional (decorative, ≤30 chars)
 interface Session { name: string; segments: Segment[]; }
 type Mode = 'view' | 'edit';
 ```

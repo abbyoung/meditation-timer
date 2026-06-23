@@ -24,6 +24,12 @@ export interface Segment {
   start: SoundKind;
   /** Cue played when the segment ends. */
   end: SoundKind;
+  /**
+   * Optional human label (e.g. "Body scan"). Purely decorative — segments are
+   * always identified by order/index, so a name is never required. Absent or
+   * blank falls back to "Segment N of M" wherever a label is shown.
+   */
+  name?: string;
 }
 
 /** A named, ordered list of segments. */
