@@ -304,7 +304,7 @@ export class Builder {
     nameInput.className = 'seg-name';
     nameInput.type = 'text';
     nameInput.value = seg.name ?? '';
-    nameInput.placeholder = 'Name this segment';
+    nameInput.placeholder = 'Name this segment (optional)';
     nameInput.setAttribute('aria-label', `Segment ${idx + 1} name`);
     nameInput.maxLength = 30;
     nameInput.autocomplete = 'off';
