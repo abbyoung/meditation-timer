@@ -8,3 +8,5 @@ dist-ssr/
 
 # Local Claude Code settings (machine-specific)
 .claude/settings.local.json
+# Agent worktrees (embedded git repos — never commit)
+.claude/worktrees/
